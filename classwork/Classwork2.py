@@ -2,24 +2,21 @@
 import numpy as np
 import cv2 as cv
 
-#create empty image
-img = np.zeros([200, 300], dtype=np.uint8)
+img = cv.imread('pic/Circle Objects.png')
 
-# Center coordinates and radius of the circle
-center = (150, 100)
-radius = 50
+grayimg = cv.cvtColor(img, cv.IMREAD_GRAYSCALE)
 
-# Loop over the pixels and set the values within the circle to 255 (white)
-for y in range(200):
-    for x in range(300):
-        if np.sqrt((x - center[0])**2 + (y - center[1])**2) <= radius:
-            img[y, x] = 255
+blurimg = cv.medianBlur(grayimg,5)
+#หาขอบวงกลม
+edges = cv.Canny(blurimg,230,255)
 
-# display the image
-cv.imshow("Drawing", img)
+for row in range(0,img.shape[0],3):
+    for col in range(0,img.shape[1],3):
+        pixel = edges[row, col]
+        if pixel > 230:
+            radius = 60
+            cv.circle(img, (col,row), radius, (0, 255, 0),1)
 
-# wait for a key press
+cv.imshow("Circle",img)
 cv.waitKey(0)
-
-# clean up
-cv.destroyAllWindows()
+cv.destroyAllWindows
