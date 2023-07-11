@@ -20,4 +20,7 @@ for i in range(number_of_black_pixel):
     x_coord = random.randint(0, img.shape[1] - 1)
     img[y_coord][x_coord] = 0
 
-cv.imwrite('Demo.png', img)
+# Apply median filter for noise reduction
+filtered_img = cv.medianBlur(img, 3)
+
+cv.imwrite('Demo.png', filtered_img)
