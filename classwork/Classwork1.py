@@ -1,46 +1,21 @@
-import numpy as np
 import cv2 as cv
+import numpy as np
 
-def draw_line(img, start_point, end_point, color=(255, 255, 255), thickness=1):
-    # Extract the coordinates
-    x1, y1 = start_point
-    x2, y2 = end_point
+# สร้างภาพเส้นตรงเป็นฟิลเตอร์
+line_filter = np.zeros((5, 5), dtype=np.uint8)
+line_filter[2, :] = 255
 
-    # Calculate the delta values
-    dx = abs(x2 - x1)
-    dy = abs(y2 - y1)
+# โหลดภาพที่ต้องการทดสอบ
+image = cv.imread('pic/initiald2.jpeg', cv.IMREAD_GRAYSCALE)
 
-    # Determine the sign of the increments
-    sx = 1 if x1 < x2 else -1
-    sy = 1 if y1 < y2 else -1
+# Convolution ของเส้นตรงกับภาพ
+result = cv.filter2D(image, -1, line_filter)
 
-    # Initialize the error values
-    error = dx - dy
+# ปรับค่าสีของผลลัพธ์
+result_normalized = cv.normalize(result, None, 0, 255, cv.NORM_MINMAX, dtype=cv.CV_8U)
 
-    # Draw the line
-    while x1 != x2 or y1 != y2:
-        img[y1, x1] = color
-
-        # Calculate the next pixel coordinates
-        error2 = 2 * error
-        if error2 > -dy:
-            error -= dy
-            x1 += sx
-        if error2 < dx:
-            error += dx
-            y1 += sy
-
-# Create a blank image
-image = np.zeros((200, 200, 3), dtype=np.uint8)
-
-# Define the start and end points of the line
-start_point = (50, 50)
-end_point = (150, 150)
-
-# Draw the line on the image
-draw_line(image, start_point, end_point, color=(0, 0, 255), thickness=3)
-
-# Display the image
-cv.imshow("Line Drawing", image)
+# แสดงผลลัพธ์
+cv.imshow("Original Image", image)
+cv.imshow("Convolution Result", result_normalized)
 cv.waitKey(0)
 cv.destroyAllWindows()

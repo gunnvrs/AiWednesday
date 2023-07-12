@@ -23,4 +23,6 @@ for i in range(number_of_black_pixel):
 # Apply median filter for noise reduction
 filtered_img = cv.medianBlur(img, 3)
 
+#a ภาพต้นฉบับ
+cv.imwrite('Demo.png', img)
 cv.imwrite('Demo.png', filtered_img)
