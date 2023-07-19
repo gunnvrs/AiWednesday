@@ -1,7 +1,7 @@
 import numpy as np
 import cv2 as cv
 
-img = cv.imread('pic/initiald2.jpeg', cv.IMREAD_GRAYSCALE)
+img = cv.imread('pic/fish.jpg', cv.IMREAD_GRAYSCALE)
 
 laplacian = cv.Laplacian(img, cv.CV_64F)
 sobelx = cv.Sobel(img, cv.CV_64F,1,0,ksize=5)
