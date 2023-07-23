@@ -1,47 +1,41 @@
 import numpy as np
 import cv2 as cv
 
-# Sobel Filter for Horizontal direction
+img = cv.imread('pic/fish.jpg', cv.IMREAD_GRAYSCALE)
+
 sobel_horizontal = np.array([[-1, -2, -1],
                              [ 0,  0,  0],
                              [ 1,  2,  1]])
 
-# Sobel Filter for Vertical direction
 sobel_vertical = np.array([[-1,  0,  1],
                            [-2,  0,  2],
                            [-1,  0,  1]])
 
 
-# Spatial Domain
-img = cv.imread('pic/fish.jpg', cv.IMREAD_GRAYSCALE)
+#----Fourier_filter----------------------------------------------------------------------------------------------
+size = (img.shape[0] - sobel_vertical.shape[0], img.shape[1] - sobel_vertical.shape[1])  
+kernel = np.pad(sobel_vertical, (((size[0]+1)//2, size[0]//2), ((size[1]+1)//2, size[1]//2)), 'constant')
+kernel = np.fft.ifftshift(kernel)
 
-#--------------- Frequency Domain (2) แปลงภาพ Input ให้อยู่ใน Frequency Domain ด้วย Fourier Transform
-img_fft = np.fft.fft2(img)
-
-
-# ---------------Apply Sobel Filter in the Vertical (1) สร้าง Sobel Filter แบบ Horizontal หรือ Vertical อย่างใดอย่างหนึ่งใน Spatial Domain
-filtered_vertical = cv.filter2D(img, -1, sobel_vertical)
-
+img = img.astype(np.float32)
+imgF = np.fft.fft2(img)
+filF = np.fft.fft2(kernel)
 
 
-# Convert img_fft to a compatible data type
-img_fft_shifted = np.fft.fftshift(img_fft)
-img_fft_shifted_real = np.abs(img_fft_shifted).astype(np.uint8)
-
-# (3) แปลง Filter Sobel ให้อยู่ใน Frequency Domain ด้วย Fourier Transform
-sobel_vertical_fft = np.fft.fft2(sobel_vertical)
-sobel_vertical_freq = np.fft.fftshift(sobel_vertical_fft)
+#----Dot Product-------------------------------------------------------------------------------------------------
+print(img.shape)
+dot = imgF * filF 
+dotInv = np.fft.ifft2(dot)
+dotReal = np.real(dotInv)
 
 
 
-#Apply Sobel Filter in the Vertical "Frequency domain" 
-filtered_vertical_freq = cv.filter2D(img_fft_shifted_real, -1, sobel_vertical_freq)
+#----Result-------------------------------------------------------------------------------------------------------
+#ANSWER1  SPATIAL
+imgMag = cv.Sobel(img, cv.CV_64F, 1, 0, ksize=3)  #(0,1) (1,0)  is for vertical and horizontal
+imgMag = cv.normalize(imgMag, None, 0, 255, cv.NORM_MINMAX, cv.CV_8U)
+cv.imwrite("picout/CW4_1sobel.png",imgMag)
 
-
-
-
-# Save the filtered images in the Spatial domain
-cv.imwrite('picout/filtered_vertical.png', filtered_vertical)
-
-# Save the filtered images in the Frequency domain
-cv.imwrite('picout/filtered_vertical_freq.png', filtered_vertical_freq)
+#ANSWER2  FOURIER
+dotInv = cv.normalize(dotReal, None, 0, 255, cv.NORM_MINMAX, cv.CV_8U)
+cv.imwrite('picout/CW4_2soble.png', dotInv)
